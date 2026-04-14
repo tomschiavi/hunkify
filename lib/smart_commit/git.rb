@@ -38,13 +38,21 @@ module SmartCommit
     end
 
     def self.unstage_all
-      run("git reset HEAD")
-    rescue RuntimeError
-      begin
-        run("git rm --cached -r .")
-      rescue RuntimeError
-        # Nothing to unstage
+      if head_exists?
+        run("git reset HEAD")
+      else
+        stdout, _stderr, status = Open3.capture3("git", "ls-files", "-z", "--cached")
+        raise "Git error: unable to list index" unless status.success?
+        stdout.split("\0").reject(&:empty?).each do |path|
+          _o, err, st = Open3.capture3("git", "rm", "--cached", "-f", "--", path)
+          raise "Git error: #{err.strip}" unless st.success?
+        end
       end
+    end
+
+    def self.head_exists?
+      _o, _e, status = Open3.capture3("git", "rev-parse", "--verify", "HEAD")
+      status.success?
     end
 
     def self.commit(message)
