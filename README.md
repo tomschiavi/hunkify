@@ -1,8 +1,8 @@
-# smart_commit
+# hunkify
 
 Split your staged changes into atomic, well-scoped commits — powered by Claude.
 
-Instead of cramming everything into a single `git commit -m "wip"`, `smart_commit` parses your staged diff hunk by hunk, asks Claude to group them by intent, and produces conventional commits (with gitmojis) ready to apply.
+Instead of cramming everything into a single `git commit -m "wip"`, `hunkify` parses your staged diff hunk by hunk, asks Claude to group them by intent, and produces conventional commits (with gitmojis) ready to apply.
 
 ## Features
 
@@ -21,13 +21,13 @@ Instead of cramming everything into a single `git commit -m "wip"`, `smart_commi
 ## Installation
 
 ```bash
-gem install smart_commit
+gem install hunkify
 ```
 
 Or add to your `Gemfile`:
 
 ```ruby
-gem "smart_commit"
+gem "hunkify"
 ```
 
 ## Setup
@@ -42,20 +42,20 @@ export ANTHROPIC_API_KEY=sk-ant-...
 
 ```bash
 git add .
-smart_commit
+hunkify
 ```
 
 With a context hint (ticket ID, feature name, or any free-form directive):
 
 ```bash
-smart_commit my_ticket_id
-smart_commit "user onboarding"
-smart_commit "focus on refactoring"
+hunkify my_ticket_id
+hunkify "user onboarding"
+hunkify "focus on refactoring"
 ```
 
 ### Workflow
 
-1. `smart_commit` parses your staged diff into hunks.
+1. `hunkify` parses your staged diff into hunks.
 2. Claude proposes a grouping into logical commits.
 3. For each proposed commit, you can **confirm**, **edit the message**, **skip**, or **quit**.
 4. After a final confirmation, the plan is applied — each commit is created via `git apply --cached`.
@@ -64,10 +64,10 @@ If anything goes wrong during apply, the original staged state is restored.
 
 ## Debug
 
-Set `SMART_COMMIT_DEBUG=1` to print the raw AI response and the patches being applied:
+Set `HUNKIFY_DEBUG=1` to print the raw AI response and the patches being applied:
 
 ```bash
-SMART_COMMIT_DEBUG=1 smart_commit
+HUNKIFY_DEBUG=1 hunkify
 ```
 
 ## License

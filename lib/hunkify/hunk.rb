@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module SmartCommit
+module Hunkify
   Hunk = Struct.new(:id, :file_header, :file_path, :hunk_header, :lines, keyword_init: true) do
     def to_patch
       body = lines.join("\n")

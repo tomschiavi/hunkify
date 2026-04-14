@@ -2,14 +2,14 @@
 
 require_relative "color"
 
-module SmartCommit
+module Hunkify
   module UI
     module_function
 
     def print_header
-      version = defined?(SmartCommit::VERSION) ? SmartCommit::VERSION : ""
+      version = defined?(Hunkify::VERSION) ? Hunkify::VERSION : ""
       puts
-      puts "  #{Color.magenta("▲")} #{Color.bold("smart_commit")} #{Color.dim("v#{version}")}"
+      puts "  #{Color.magenta("▲")} #{Color.bold("hunkify")} #{Color.dim("v#{version}")}"
       puts "  #{Color.dim("─" * 40)}"
       puts "  #{Color.dim("Atomic commits, grouped by Claude.")}"
       puts

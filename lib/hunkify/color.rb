@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module SmartCommit
+module Hunkify
   module Color
     RESET = "\e[0m"
     BOLD = "\e[1m"

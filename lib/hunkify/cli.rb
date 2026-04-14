@@ -6,7 +6,7 @@ require_relative "git"
 require_relative "anthropic_api"
 require_relative "ui"
 
-module SmartCommit
+module Hunkify
   module CLI
     module_function
 
@@ -115,7 +115,7 @@ module SmartCommit
           "#{first.file_header}\n#{hunk_bodies}"
         end.join("\n")
 
-        if ENV["SMART_COMMIT_DEBUG"]
+        if ENV["HUNKIFY_DEBUG"]
           warn "\n--- PATCH ---\n#{patch}\n-------------\n"
         end
 

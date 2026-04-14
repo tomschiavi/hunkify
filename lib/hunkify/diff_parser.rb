@@ -2,7 +2,7 @@
 
 require_relative "hunk"
 
-module SmartCommit
+module Hunkify
   module DiffParser
     def self.parse(raw_diff)
       hunks = []

@@ -3,7 +3,7 @@
 require "open3"
 require "tempfile"
 
-module SmartCommit
+module Hunkify
   module Git
     def self.run(cmd)
       stdout, stderr, status = Open3.capture3(cmd)
@@ -28,7 +28,7 @@ module SmartCommit
     end
 
     def self.apply_patch_to_index(patch_content)
-      Tempfile.create(["smart_commit_patch", ".patch"]) do |f|
+      Tempfile.create(["hunkify_patch", ".patch"]) do |f|
         f.write(patch_content)
         f.flush
         stdout, stderr, status = Open3.capture3("git", "apply", "--cached", "--whitespace=nowarn", f.path)

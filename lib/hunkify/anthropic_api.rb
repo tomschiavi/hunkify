@@ -4,7 +4,7 @@ require "net/http"
 require "json"
 require "uri"
 
-module SmartCommit
+module Hunkify
   module AnthropicAPI
     API_URL = "https://api.anthropic.com/v1/messages"
     MODEL = "claude-haiku-4-5-20251001"
@@ -83,7 +83,7 @@ module SmartCommit
 
       raw = body.dig("content", 0, "text")&.strip
 
-      if ENV["SMART_COMMIT_DEBUG"]
+      if ENV["HUNKIFY_DEBUG"]
         warn "\n--- RAW AI RESPONSE ---\n#{raw}\n-----------------------\n"
       end
 
