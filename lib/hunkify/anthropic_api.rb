@@ -98,5 +98,56 @@ module Hunkify
 
       JSON.parse(cleaned)
     end
+
+    SUGGEST_SYSTEM_PROMPT = <<~PROMPT
+      You are a Git expert. You are given one or more hunks that the user wants
+      to bundle into a single commit. Produce ONE conventional commit message
+      following these rules:
+
+      - Gitmoji + type + scope: ":sparkles: feat(scope): short description"
+      - Types: feat, fix, refactor, style, test, docs, config, build, perf, security
+      - In English, imperative, no leading capital, no trailing period
+      - Max 72 characters
+      - If a user context is provided, use it to steer scope/wording. If it looks
+        like a ticket ID, use it as the scope.
+
+      AVAILABLE GITMOJIS:
+      :sparkles: feat | :bug: fix | :recycle: refactor | :lipstick: style
+      :white_check_mark: test | :memo: docs | :wrench: config | :package: build
+      :zap: perf | :lock: security
+
+      RESPOND ONLY WITH THE MESSAGE. No markdown, no quotes, no explanation.
+    PROMPT
+
+    def self.suggest_message(hunks, context: nil)
+      api_key = ENV["ANTHROPIC_API_KEY"]
+      raise "ANTHROPIC_API_KEY missing!" if api_key.nil? || api_key.empty?
+
+      user_ctx = context && !context.empty? ? "\nUser context: #{context}" : ""
+      summary = hunks.map(&:to_summary).join("\n\n---\n\n")
+      user_message = "#{user_ctx}\n\nHunks to bundle into a single commit:\n\n#{summary}"
+
+      uri = URI(API_URL)
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      http.read_timeout = 30
+
+      request = Net::HTTP::Post.new(uri.path)
+      request["Content-Type"] = "application/json"
+      request["x-api-key"] = api_key
+      request["anthropic-version"] = "2023-06-01"
+      request.body = JSON.generate({
+        model: MODEL,
+        max_tokens: 128,
+        system: SUGGEST_SYSTEM_PROMPT,
+        messages: [{role: "user", content: user_message}]
+      })
+
+      response = http.request(request)
+      body = JSON.parse(response.body)
+      raise "API Error #{response.code}: #{body["error"]&.dig("message")}" unless response.code == "200"
+
+      body.dig("content", 0, "text").to_s.strip.lines.first.to_s.strip
+    end
   end
 end
