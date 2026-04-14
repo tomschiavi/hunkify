@@ -9,6 +9,7 @@ Gem::Specification.new do |spec|
   spec.summary = "Split staged changes into atomic commits using Claude."
   spec.description = "smart_commit analyzes staged hunks, asks Claude to group them into logical commits, and applies them via git apply --cached."
   spec.license = "MIT"
+  spec.homepage = "https://github.com/tomschiavi/smartcommit"
 
   spec.required_ruby_version = ">= 2.7"
 
