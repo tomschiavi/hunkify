@@ -11,6 +11,12 @@ Gem::Specification.new do |spec|
   spec.license = "MIT"
   spec.homepage = "https://github.com/tomschiavi/smartcommit"
 
+  spec.metadata = {
+    "source_code_uri" => "https://github.com/tomschiavi/smartcommit",
+    "bug_tracker_uri" => "https://github.com/tomschiavi/smartcommit/issues",
+    "changelog_uri" => "https://github.com/tomschiavi/smartcommit/releases"
+  }
+
   spec.required_ruby_version = ">= 2.7"
 
   spec.files = Dir["lib/**/*.rb", "bin/*", "README.md", "LICENSE"]
