@@ -70,6 +70,8 @@ module Hunkify
 
       UI.print_grouping(commits_data, hunks_by_id)
 
+      UI.reassign_loop(commits_data, hunks_by_id, context: context)
+
       plan = []
       commits_data.each_with_index do |c, i|
         puts Color.bold("  Commit #{i + 1}/#{commits_data.size}:")
