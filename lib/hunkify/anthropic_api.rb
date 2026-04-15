@@ -17,7 +17,20 @@ module Hunkify
       - One commit = one unique intent (feat, fix, refactor, style, etc.)
       - Hunks in different files CAN belong to the same commit if they serve the same intent
       - Hunks in the SAME file can belong to DIFFERENT commits if they are semantically distinct
-      - Prefer atomic and independent commits
+      - STRONGLY prefer fine-grained, atomic commits over large bundled ones.
+        When in doubt, SPLIT rather than merge.
+      - Heuristics to split:
+        * Different modules/components/features → different commits
+        * Core logic vs. tests → different commits (one feat commit + one test commit)
+        * Core logic vs. docs → different commits
+        * Core logic vs. config/build files → different commits
+        * Unrelated fixes bundled with a feature → separate them
+        * Each file introducing a new, independent capability usually deserves
+          its own commit
+      - Only bundle hunks together when they genuinely cannot be reviewed or
+        reverted independently.
+      - Err on the side of MORE commits. A PR with 8 small focused commits is
+        better than one with 3 large ones.
 
       RESPONSE FORMAT (strict JSON, no surrounding text):
       {
