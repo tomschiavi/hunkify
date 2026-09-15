@@ -5,7 +5,7 @@ require_relative "hunkify/color"
 require_relative "hunkify/hunk"
 require_relative "hunkify/diff_parser"
 require_relative "hunkify/git"
-require_relative "hunkify/anthropic_api"
+require_relative "hunkify/opencode"
 require_relative "hunkify/ui"
 require_relative "hunkify/cli"
 

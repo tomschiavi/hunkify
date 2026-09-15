@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
-require "net/http"
 require "json"
-require "uri"
+require "open3"
 
 module Hunkify
-  module AnthropicAPI
-    API_URL = "https://api.anthropic.com/v1/messages"
-    MODEL = "claude-haiku-4-5-20251001"
+  module OpenCode
+    MODEL = "github-copilot/gpt-5.6-terra"
 
     SYSTEM_PROMPT = <<~PROMPT
       You are a Git expert. You are given a list of hunks (blocks of modifications)
@@ -65,53 +63,6 @@ module Hunkify
       RESPOND ONLY WITH THE JSON. No markdown, no explanation.
     PROMPT
 
-    def self.group_hunks(hunks, context: nil)
-      api_key = ENV["ANTHROPIC_API_KEY"]
-      raise "ANTHROPIC_API_KEY missing! Add it to your ~/.zshrc or ~/.bashrc" if api_key.nil? || api_key.empty?
-
-      user_ctx = context && !context.empty? ? "\nUser context: #{context}" : ""
-      hunks_summary = hunks.map(&:to_summary).join("\n\n---\n\n")
-      user_message = "#{user_ctx}\n\nHere are the hunks to group:\n\n#{hunks_summary}"
-
-      uri = URI(API_URL)
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true
-      http.read_timeout = 30
-
-      request = Net::HTTP::Post.new(uri.path)
-      request["Content-Type"] = "application/json"
-      request["x-api-key"] = api_key
-      request["anthropic-version"] = "2023-06-01"
-      request.body = JSON.generate({
-        model: MODEL,
-        max_tokens: 1024,
-        system: SYSTEM_PROMPT,
-        messages: [{role: "user", content: user_message}]
-      })
-
-      response = http.request(request)
-      body = JSON.parse(response.body)
-
-      raise "API Error #{response.code}: #{body["error"]&.dig("message")}" unless response.code == "200"
-
-      raw = body.dig("content", 0, "text")&.strip
-
-      if ENV["HUNKIFY_DEBUG"]
-        warn "\n--- RAW AI RESPONSE ---\n#{raw}\n-----------------------\n"
-      end
-
-      cleaned = raw
-        .gsub(/\A```(?:json)?\s*/i, "")
-        .gsub(/\s*```\z/, "")
-        .strip
-
-      if (match = cleaned.match(/(\{.+\})/m))
-        cleaned = match[1]
-      end
-
-      JSON.parse(cleaned)
-    end
-
     SUGGEST_SYSTEM_PROMPT = <<~PROMPT
       You are a Git expert. You are given one or more hunks that the user wants
       to bundle into a single commit. Produce ONE conventional commit message
@@ -132,35 +83,36 @@ module Hunkify
       RESPOND ONLY WITH THE MESSAGE. No markdown, no quotes, no explanation.
     PROMPT
 
-    def self.suggest_message(hunks, context: nil)
-      api_key = ENV["ANTHROPIC_API_KEY"]
-      raise "ANTHROPIC_API_KEY missing!" if api_key.nil? || api_key.empty?
-
+    def self.group_hunks(hunks, context: nil)
       user_ctx = context && !context.empty? ? "\nUser context: #{context}" : ""
       summary = hunks.map(&:to_summary).join("\n\n---\n\n")
-      user_message = "#{user_ctx}\n\nHunks to bundle into a single commit:\n\n#{summary}"
+      raw = ask(SYSTEM_PROMPT, "#{user_ctx}\n\nHere are the hunks to group:\n\n#{summary}")
+      cleaned = raw.gsub(/\A```(?:json)?\s*/i, "").gsub(/\s*```\z/, "").strip
+      cleaned = Regexp.last_match(1) if cleaned.match(/(\{.+\})/m)
+      JSON.parse(cleaned)
+    end
 
-      uri = URI(API_URL)
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true
-      http.read_timeout = 30
+    def self.suggest_message(hunks, context: nil)
+      user_ctx = context && !context.empty? ? "\nUser context: #{context}" : ""
+      summary = hunks.map(&:to_summary).join("\n\n---\n\n")
+      ask(SUGGEST_SYSTEM_PROMPT, "#{user_ctx}\n\nHunks to bundle into a single commit:\n\n#{summary}").lines.first.to_s.strip
+    end
 
-      request = Net::HTTP::Post.new(uri.path)
-      request["Content-Type"] = "application/json"
-      request["x-api-key"] = api_key
-      request["anthropic-version"] = "2023-06-01"
-      request.body = JSON.generate({
-        model: MODEL,
-        max_tokens: 128,
-        system: SUGGEST_SYSTEM_PROMPT,
-        messages: [{role: "user", content: user_message}]
-      })
+    def self.ask(system_prompt, user_message)
+      output, status = Open3.capture2e("opencode", "run", "--model", MODEL, "--format", "json", "#{system_prompt}\n\n#{user_message}")
+      raise "OpenCode failed: #{output.strip}" unless status.success?
 
-      response = http.request(request)
-      body = JSON.parse(response.body)
-      raise "API Error #{response.code}: #{body["error"]&.dig("message")}" unless response.code == "200"
+      raw = output.lines.filter_map do |line|
+        event = JSON.parse(line)
+        event.dig("part", "text") if event["type"] == "text"
+      rescue JSON::ParserError
+        nil
+      end.join.strip
 
-      body.dig("content", 0, "text").to_s.strip.lines.first.to_s.strip
+      raise "OpenCode returned no text response" if raw.empty?
+
+      warn "\n--- RAW AI RESPONSE ---\n#{raw}\n-----------------------\n" if ENV["HUNKIFY_DEBUG"]
+      raw
     end
   end
 end

@@ -3,7 +3,7 @@
 require_relative "color"
 require_relative "diff_parser"
 require_relative "git"
-require_relative "anthropic_api"
+require_relative "opencode"
 require_relative "ui"
 
 module Hunkify
@@ -43,11 +43,11 @@ module Hunkify
 
       hunks_by_id = hunks.each_with_object({}) { |h, acc| acc[h.id] = h }
 
-      puts Color.dim("  Analyzing and grouping via Claude #{AnthropicAPI::MODEL}...")
+      puts Color.dim("  Analyzing and grouping via OpenCode #{OpenCode::MODEL}...")
       puts
 
       begin
-        result = AnthropicAPI.group_hunks(hunks, context: context)
+        result = OpenCode.group_hunks(hunks, context: context)
       rescue JSON::ParserError
         puts Color.red("  ✗ Invalid AI response (malformed JSON). Try again.")
         exit 1
