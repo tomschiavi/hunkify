@@ -1,13 +1,13 @@
 # hunkify
 
-Split your staged changes into atomic, well-scoped commits — powered by Claude.
+Split your staged changes into atomic, well-scoped commits — powered by GitHub Copilot through OpenCode.
 
-Instead of cramming everything into a single `git commit -m "wip"`, `hunkify` parses your staged diff hunk by hunk, asks Claude to group them by intent, and produces conventional commits (with gitmojis) ready to apply.
+Instead of cramming everything into a single `git commit -m "wip"`, `hunkify` parses your staged diff hunk by hunk, asks OpenCode to group them by intent using GitHub Copilot, and produces conventional commits (with gitmojis) ready to apply.
 
 ## Features
 
 - **Hunk-level analysis** — each change block is treated independently, so one file can span multiple commits if needed.
-- **AI-powered grouping** via Claude Haiku 4.5 — fast, cheap, accurate.
+- **AI-powered grouping** via GitHub Copilot and OpenCode.
 - **Gitmoji + conventional commits** — `:sparkles: feat(scope): …`, `:bug: fix(scope): …`, etc.
 - **Interactive review** — confirm, edit, or skip each proposed commit before it's created.
 - **Free-form context argument** — pass a ticket ID, feature name, or any directive to steer the output.
@@ -16,7 +16,7 @@ Instead of cramming everything into a single `git commit -m "wip"`, `hunkify` pa
 ## Requirements
 
 - Ruby ≥ 2.7
-- An [Anthropic API key](https://console.anthropic.com/)
+- [OpenCode](https://opencode.ai/) authenticated with GitHub Copilot
 
 ## Installation
 
@@ -32,10 +32,10 @@ gem "hunkify"
 
 ## Setup
 
-Export your Anthropic API key (add to your `~/.zshrc` or `~/.bashrc`):
+Authenticate OpenCode with GitHub Copilot:
 
 ```bash
-export ANTHROPIC_API_KEY=sk-ant-...
+opencode providers login
 ```
 
 ## Usage
@@ -56,7 +56,7 @@ hunkify "focus on refactoring"
 ### Workflow
 
 1. `hunkify` parses your staged diff into hunks.
-2. Claude proposes a grouping into logical commits.
+2. OpenCode asks GitHub Copilot to propose a grouping into logical commits.
 3. For each proposed commit, you can **confirm**, **edit the message**, **skip**, or **quit**.
 4. After a final confirmation, the plan is applied — each commit is created via `git apply --cached`.
 
