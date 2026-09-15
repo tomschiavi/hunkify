@@ -12,7 +12,7 @@ module Hunkify
       puts
       puts "  #{Color.magenta("▲")} #{Color.bold("hunkify")} #{Color.dim("v#{version}")}"
       puts "  #{Color.dim("─" * 40)}"
-      puts "  #{Color.dim("Atomic commits, grouped by Claude.")}"
+      puts "  #{Color.dim("Atomic commits, grouped by GitHub Copilot.")}"
       puts
     end
 
@@ -65,9 +65,9 @@ module Hunkify
 
     def prompt_new_message(hunk_ids, hunks_by_id, context:)
       hunks = hunk_ids.map { |id| hunks_by_id[id] }.compact
-      print Color.dim("  Asking Claude for a suggestion... ")
+      print Color.dim("  Asking OpenCode for a suggestion... ")
       begin
-        suggestion = AnthropicAPI.suggest_message(hunks, context: context)
+        suggestion = OpenCode.suggest_message(hunks, context: context)
       rescue => e
         puts Color.red("failed (#{e.message})")
         suggestion = nil
