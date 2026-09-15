@@ -18,11 +18,11 @@ module Hunkify
       - STRONGLY prefer fine-grained, atomic commits over large bundled ones.
         When in doubt, SPLIT rather than merge.
       - Heuristics to split:
-        * Different modules/components/features → different commits
-        * Core logic vs. tests → different commits (one feat commit + one test commit)
-        * Core logic vs. docs → different commits
-        * Core logic vs. config/build files → different commits
-        * Unrelated fixes bundled with a feature → separate them
+        * Different modules/components/features -> different commits
+        * Core logic vs. tests -> different commits (one feat commit + one test commit)
+        * Core logic vs. docs -> different commits
+        * Core logic vs. config/build files -> different commits
+        * Unrelated fixes bundled with a feature -> separate them
         * Each file introducing a new, independent capability usually deserves
           its own commit
       - Only bundle hunks together when they genuinely cannot be reviewed or
@@ -37,11 +37,6 @@ module Hunkify
             "message": ":sparkles: feat(scope): description in English",
             "hunk_ids": [1, 3, 5],
             "reasoning": "brief explanation of the grouping"
-          },
-          {
-            "message": ":bug: fix(scope): description in English",
-            "hunk_ids": [2, 4],
-            "reasoning": "brief explanation"
           }
         ]
       }
