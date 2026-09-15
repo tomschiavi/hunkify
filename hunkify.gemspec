@@ -6,8 +6,8 @@ Gem::Specification.new do |spec|
   spec.name = "hunkify"
   spec.version = Hunkify::VERSION
   spec.authors = ["Tom SCHIAVI"]
-  spec.summary = "Split staged changes into atomic commits using Claude."
-  spec.description = "hunkify analyzes staged hunks, asks Claude to group them into logical commits, and applies them via git apply --cached."
+  spec.summary = "Split staged changes into atomic commits using GitHub Copilot."
+  spec.description = "hunkify analyzes staged hunks, asks OpenCode with GitHub Copilot to group them into logical commits, and applies them via git apply --cached."
   spec.license = "MIT"
   spec.homepage = "https://github.com/tomschiavi/smartcommit"
 
